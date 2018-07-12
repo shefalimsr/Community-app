@@ -1,0 +1,121 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="15dp"
+    android:orientation="vertical"
+    tools:context="com.example.pay1.community.home.HomeViewHolder"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+
+    <!-- date -->
+    <TextView
+        android:id="@+id/home_item_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:hint="12 april 2018"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="10dp"
+        android:padding="5dp"
+        />
+
+
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/textLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/box"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        tools:context="com.example.pay1.community.community.TrainingMaterial.FeedViewHolder"
+        tools:layout_conversion_absoluteHeight="50dp"
+        tools:layout_conversion_absoluteWidth="364dp"
+        tools:layout_editor_absoluteX="10dp"
+        tools:layout_editor_absoluteY="15dp">
+
+
+        <!-- icon -->
+        <ImageView
+            android:id="@+id/home_item_icon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/icon"
+            android:padding="4dp"
+            android:src="@drawable/ic_launcher_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/home_item_title"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- title -->
+        <TextView
+            android:id="@+id/home_item_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center_vertical"
+            android:padding="5dp"
+            app:fontFamily="@font/cabin"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/right_icon"
+            app:layout_constraintHorizontal_weight="8"
+            app:layout_constraintStart_toEndOf="@+id/home_item_icon"
+
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- icon -->
+        <ImageView
+            android:id="@+id/right_icon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="icon"
+            android:padding="4dp"
+            android:src="@drawable/ic_right"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/home_item_title"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+       android:layout_gravity="center"
+        />
+
+
+
+    <!-- time -->
+
+
+    <TextView
+        android:id="@+id/home_item_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:hint="11:00 am"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="10dp"
+        tools:layout_conversion_absoluteHeight="15dp"
+        tools:layout_conversion_absoluteWidth="374dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="65dp"
+        android:padding="5dp"/>
+
+
+</LinearLayout>

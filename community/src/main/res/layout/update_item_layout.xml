@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:weightSum="10"
+    android:padding="5dp"
+    tools:context="com.example.pay1.community.update.UpdateActivity">
+
+
+
+    <!-- icon -->
+    <ImageView
+        android:id="@+id/item_icon"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:contentDescription="icon"
+        android:src="@drawable/ic_launcher_background"
+        android:layout_weight="2"
+
+        />
+
+    <!-- title -->
+    <TextView
+        android:id="@+id/item_title"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8"
+        android:padding="5dp"
+        android:gravity="center_vertical"
+        app:fontFamily="@font/cabin"
+         />
+
+
+
+</LinearLayout>
