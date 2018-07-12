@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.pay1.community.R;
+import com.example.pay1.community.api.APIClient;
+import com.example.pay1.community.api.APIInterface;
+import com.example.pay1.community.api.response.FeedResource;
+import com.example.pay1.community.database.DatabaseManager;
+import com.example.pay1.community.database.entity.HomEntity;
 
 import java.sql.Date;
 import java.text.DateFormat;
@@ -26,25 +30,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import io.reactivex.CompletableObserver;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import com.example.pay1.community.api.*;
-import com.example.pay1.community.api.response.FeedResource;
-import com.example.pay1.community.api.response.FeedResponse;
-import com.example.pay1.community.update.Update;
-import com.example.pay1.community.update.UpdateListPresenter;
-import com.example.pay1.community.update.UpdateRecyclerAdapter;
-
-import static android.widget.LinearLayout.VERTICAL;
-
 public class HomeActivity extends AppCompatActivity
 {
     APIInterface apiInterface;
     public  String ts;
+    RecyclerView recyclerView;
 
     List<Home> homeList = new ArrayList<Home>();
     private DrawerLayout mDrawerLayout;
@@ -57,12 +56,9 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        //-----------------------------------------------------------API-----------------------------------------------
-        apiInterface = APIClient.getClient().create(APIInterface.class);
 
         Toolbar toolbar = findViewById(R.id.toolbar1);
         setSupportActionBar(toolbar);
-
         toolbar.setNavigationIcon(R.drawable.ic_community_logo);
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
@@ -96,6 +92,10 @@ public class HomeActivity extends AppCompatActivity
                 }
         );
 
+
+
+
+// -------------------------------------------------- Navigation drawer ---------------------------------------------------------
 
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -145,8 +145,13 @@ public class HomeActivity extends AppCompatActivity
 
         Calendar cal = Calendar.getInstance();
         ts = dateFormat.format(cal.getTime());
-     //   System.out.println(dateFormat.format(cal));
 
+
+
+
+        //-------------------------------------------- getting from API , inserting in database ---------------------------------------
+
+        apiInterface = APIClient.getClient().create(APIInterface.class);
         Retrofit retrofit1 = new Retrofit.Builder()
                 .baseUrl("http://community.pay1.in")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -155,20 +160,22 @@ public class HomeActivity extends AppCompatActivity
         APIInterface service1 = retrofit1.create(APIInterface.class);
         Call<List<FeedResource>> jsonCall = service1.getList();
 
-        jsonCall.enqueue(new Callback<List<FeedResource>>() {
+        jsonCall.enqueue(new Callback<List<FeedResource>>()
+        {
             @Override
             public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response)
             {
-                List<FeedResource> feedResources=response.body();
+                List<FeedResource> feedResources = response.body();
 
                 Log.d("response list", String.valueOf(response.body()));
+                if(homeList.size()!= feedResources.size())
+                {
+                    String[] titles = new String[feedResources.size()];
+                    String[] titleURL = new String[feedResources.size()];
+                    String[] iconURL = new String[feedResources.size()];
+                    String[] type = new String[feedResources.size()];
 
-                String[] titles = new String[feedResources.size()];
-                String[] titleURL = new String[feedResources.size()];
-                String[] iconURL = new String[feedResources.size()];
-                String[] type = new String[feedResources.size()];
-
-                for (int i = 0; i < feedResources.size(); i++) {
+                    for (int i = 0; i < feedResources.size(); i++) {
 
                         titles[i] = feedResources.get(i).getTitle();
                         titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
@@ -178,45 +185,89 @@ public class HomeActivity extends AppCompatActivity
                         homeList.add(fd);
 
 
-                }
+                        DatabaseManager.getInstance(getApplicationContext()).inserthome(fd)
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
 
-                // 1. get a reference to recyclerView
-                RecyclerView recyclerView = (RecyclerView) findViewById(R.id.homeRecyclerView);
+                                    @Override
+                                    public void onComplete() {
+                                    }
 
-                // 2. set layoutManger
-                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-                // 3. create an adapter
-                HomeListPresenter homeListPresenter = new HomeListPresenter(homeList);
-                HomeRecyclerAdapter mAdapter = new HomeRecyclerAdapter( homeListPresenter,new com.example.pay1.community.home.RecyclerViewClickListener(){
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        Log.d("testing", "clicked position:" + position);
-                        Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse(homeList.get(position).getTitleUrl()));
-                        startActivity(intent);
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+                                });
                     }
-                });
 
-                // 4. set adapter
-                recyclerView.setAdapter(mAdapter);
-
-                // 5. set item animator to DefaultAnimator
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                }
 
             }
 
             @Override
-            public void onFailure(Call<List<FeedResource>> call, Throwable t) {
+            public void onFailure(Call<List<FeedResource>> call, Throwable t)
+            {
                 Log.e("response error ", t.toString());
             }
+
         });
+
+
+
+
+        // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
+
+        DatabaseManager.getInstance(getApplicationContext()).getAllHomeEntries()
+                .subscribe(new Observer<HomEntity>() {
+                    @Override public void onSubscribe(Disposable d) { }
+                    @Override
+                    public void onNext(HomEntity entry) {
+
+                        Home sd=new Home(entry.getTitle(),entry.getTitleUrl(),entry.getIconUrl(),entry.getType(),ts);
+                        homeList.add(sd);
+
+                    }
+                    @Override public void onError(Throwable e) { }
+                    @Override public void onComplete() {
+
+                        Log.d("homelist", String.valueOf(homeList.isEmpty()));
+
+                        // 1. get a reference to recyclerView
+                        recyclerView = (RecyclerView) findViewById(R.id.homeRecyclerView);
+
+                        // 2. set layoutManger
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                        // 3. create an adapter
+                        HomeListPresenter homeListPresenter = new HomeListPresenter(homeList);
+                        HomeRecyclerAdapter mAdapter = new HomeRecyclerAdapter(homeListPresenter, new com.example.pay1.community.home.RecyclerViewClickListener()
+                        {
+                            @Override
+                            public void onItemClick(View v, int position)
+                            {
+                                Log.d("testing", "clicked position:" + position);
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(homeList.get(position).getTitleUrl()));
+                                startActivity(intent);
+                            }
+                        });
+
+                        // 4. set adapter
+                        recyclerView.setAdapter(mAdapter);
+
+                        // 5. set item animator to DefaultAnimator
+                        recyclerView.setItemAnimator(new DefaultItemAnimator());
+                    }
+                });
 
 
 
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;

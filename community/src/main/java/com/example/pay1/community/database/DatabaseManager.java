@@ -28,11 +28,15 @@ public class DatabaseManager {
         return new DatabaseManager(context);
     }
 
-    private DatabaseManager(Context context) {
+    private DatabaseManager(Context context)
+    {
         this.context = context;
     }
 
-    public Observable<FeedEntity> getAllEntries() {
+
+ // ------------------------------------------------------ Get all feed entries -----------------------------------------------------------
+
+    public Observable<FeedEntity> getAllFeedEntries() {
         return Observable.create(new ObservableOnSubscribe<FeedEntity>() {
             @Override
             public void subscribe(ObservableEmitter<FeedEntity> emitter) throws Exception {
@@ -47,21 +51,56 @@ public class DatabaseManager {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Observable<List<FeedEntity>> getListOfAllEntries() {
-        return Observable.create(new ObservableOnSubscribe<List<FeedEntity>>() {
+
+
+    // ------------------------------------------------------ Get all home entries -----------------------------------------------------------
+
+    public Observable<HomEntity> getAllHomeEntries()
+    {
+        return Observable.create(new ObservableOnSubscribe<HomEntity>()
+        {
             @Override
-            public void subscribe(ObservableEmitter<List<FeedEntity>> emitter) throws Exception {
-                List<FeedEntity> feedEntity = ApplicationDatabase.getInstance(context).feedDao().getAll();
-                if(!emitter.isDisposed()) {
-                    emitter.onNext(feedEntity);
+            public void subscribe(ObservableEmitter<HomEntity> emitter) throws Exception
+            {
+                List<HomEntity> homEntities = ApplicationDatabase.getInstance(context).homeDao().getAll();
+                for(HomEntity en : homEntities)
+                {
+                    if(!emitter.isDisposed()) emitter.onNext(en);
                 }
-                if(!emitter.isDisposed()) {
+                if(!emitter.isDisposed())
+                {
                     emitter.onComplete();
                 }
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
+
+
+    // ------------------------------------------------------ Get all update entries -----------------------------------------------------------
+
+    public Observable<UpdateEntity> getAllUpdateEntries()
+    {
+        return Observable.create(new ObservableOnSubscribe<UpdateEntity>()
+        {
+            @Override
+            public void subscribe(ObservableEmitter<UpdateEntity> emitter) throws Exception
+            {
+                List<UpdateEntity> updateEntities = ApplicationDatabase.getInstance(context).updateDao().getAll();
+                for(UpdateEntity en : updateEntities)
+                {
+                    if(!emitter.isDisposed()) emitter.onNext(en);
+                }
+                if(!emitter.isDisposed())
+                {
+                    emitter.onComplete();
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+
+    // ------------------------------------------------------ delete all feed entries -----------------------------------------------------------
     public Completable deleteAllEntries() {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
@@ -73,6 +112,9 @@ public class DatabaseManager {
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
+
+
+    // ------------------------------------------------------ insert single feed entries -----------------------------------------------------------
 
     public Completable insertfeed(final Feed feedi) {
         return  Completable.create(new CompletableOnSubscribe() {
@@ -97,6 +139,8 @@ public class DatabaseManager {
     }
 
 
+    // ------------------------------------------------------ insert single home entries -----------------------------------------------------------
+
     public Completable inserthome(final Home homi) {
         return  Completable.create(new CompletableOnSubscribe() {
             @Override
@@ -119,6 +163,9 @@ public class DatabaseManager {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
+
+
+    // ------------------------------------------------------ insert single update entries -----------------------------------------------------------
 
     public Completable insertupdate(final Update update) {
         return  Completable.create(new CompletableOnSubscribe() {

@@ -1,22 +1,13 @@
 package com.example.pay1.community.aeps;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 
 import com.example.pay1.community.R;
 import com.example.pay1.community.api.APIInterface;
 import com.example.pay1.community.api.response.FeedResource;
-import com.example.pay1.community.home.Home;
-import com.example.pay1.community.home.HomeListPresenter;
-import com.example.pay1.community.home.HomeRecyclerAdapter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -55,7 +46,7 @@ public class AepsActivity extends AppCompatActivity {
                 .build();
 
         APIInterface service1 = retrofit1.create(APIInterface.class);
-        Call<List<FeedResource>> jsonCall = service1.getSlider("3");
+        Call<List<FeedResource>> jsonCall = service1.getList();
 
         jsonCall.enqueue(new Callback<List<FeedResource>>() {
             @Override
@@ -65,29 +56,32 @@ public class AepsActivity extends AppCompatActivity {
 
                 Log.d("response list", String.valueOf(response.body().size()));
 
-//                String[] titles = new String[feedResources.size()];
-//                String[] titleURL = new String[feedResources.size()];
-//                String[] iconURL = new String[feedResources.size()];
-//                String[] type = new String[feedResources.size()];
-//
                 for (int i = 0; i < feedResources.size(); i++)
                 {
                         for(int j=0;j< feedResources.get(i).getRes().size(); j++)
                         {
                             images.add(feedResources.get(i).getRes().get(j).getResUrl());
                         }
+//
+//                    DatabaseManager.getInstance(getApplicationContext()).insertfeed(fd)
+//                            .subscribe(new CompletableObserver() {
+//                                @Override
+//                                public void onSubscribe(Disposable d) {
+//                                }
+//
+//                                @Override
+//                                public void onComplete() {
+//                                }
+//
+//                                @Override
+//                                public void onError(Throwable e) {
+//                                }
+//                            });
 
-//                    titles[i] = feedResources.get(i).getTitle();
-//                    titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
-//                    iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
-//                    type[i] = String.valueOf(feedResources.get(i).getFeedType());
-//                    Home fd = new Home(titles[i], titleURL[i], iconURL[i], type[i], ts);
-//                    homeList.add(fd);
-                    }
+                }
                 myCustomPagerAdapter = new ImagePagerAdapter(AepsActivity.this, images);
                 viewPager.setAdapter(myCustomPagerAdapter);
                 }
-
 
             @Override
             public void onFailure(Call<List<FeedResource>> call, Throwable t) {
@@ -95,7 +89,51 @@ public class AepsActivity extends AppCompatActivity {
             }
         });
 
-
+//        DatabaseManager.getInstance(getApplicationContext()).getAllEntries()
+//                .subscribe(new Observer<FeedEntity>() {
+//                    @Override public void onSubscribe(Disposable d) { }
+//                    @Override
+//                    public void onNext(FeedEntity entry) {
+//
+//                        Feed sd=new Feed(entry.getTitle(),entry.getTitleUrl(),entry.getIconUrl(),entry.getType(),ts);
+//                        feedList.add(sd);
+//                        Log.d("testing",entry.getTitle());
+//
+//                    }
+//                    @Override public void onError(Throwable e) { }
+//                    @Override public void onComplete() {
+//
+//                        Log.d("feedlist", String.valueOf(feedList.isEmpty()));
+//
+//                        // 1. get a reference to recyclerView
+//                        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+//
+//
+//                        Log.d("feedlist", String.valueOf(feedList.isEmpty()));
+//                        // 2. set layoutManger
+//                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+//
+//                        // 3. define click action and create an adapter
+//
+//                        FeedListPresenter feedListPresenter= new FeedListPresenter(feedList);
+//                        FeedRecyclerAdapter mAdapter = new FeedRecyclerAdapter(feedListPresenter,new RecyclerViewClickListener(){
+//                            @Override
+//                            public void onItemClick(View v, int position) {
+//                                Log.d("testing", "clicked position:" + position);
+//                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(feedList.get(position).getTitleUrl()));
+//                                startActivity(intent);
+//                            }
+//                        });
+//                        // 4. set adapter
+//                        recyclerView.setAdapter(mAdapter);
+//
+//                        // 5. set item animator to DefaultAnimator
+//                        recyclerView.setItemAnimator(new DefaultItemAnimator());
+//
+//                        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), VERTICAL); //vertical line add
+//                        recyclerView.addItemDecoration(mDividerItemDecoration);
+//                    }
+//                });
 
     }
 }

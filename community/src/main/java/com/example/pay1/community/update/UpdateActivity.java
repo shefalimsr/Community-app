@@ -22,16 +22,17 @@ import com.example.pay1.community.api.APIClient;
 import com.example.pay1.community.api.APIInterface;
 import com.example.pay1.community.api.response.FeedResource;
 import com.example.pay1.community.api.response.FeedResponse;
-import com.google.gson.Gson;
+import com.example.pay1.community.database.DatabaseManager;
+import com.example.pay1.community.database.entity.UpdateEntity;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.CompletableObserver;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,11 +51,11 @@ public class UpdateActivity extends AppCompatActivity
     JsonArray jsonArray=new JsonArray();
     List<FeedResponse> feedResponses = new ArrayList<>();
     public String ts;
+    RecyclerView recyclerView;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comp_updt);
 
@@ -93,7 +94,6 @@ public class UpdateActivity extends AppCompatActivity
                     }
                 }
         );
-
 
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -137,11 +137,13 @@ public class UpdateActivity extends AppCompatActivity
                 });
 
 
-
         // this is data fro recycler view
-        Long tsLong = System.currentTimeMillis()/1000;
+        Long tsLong = System.currentTimeMillis() / 1000;
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         ts = tsLong.toString();
+
+
+        //-------------------------------------------- getting from API , inserting in database ---------------------------------------
 
         Retrofit retrofit1 = new Retrofit.Builder()
                 .baseUrl("http://community.pay1.in")
@@ -149,13 +151,14 @@ public class UpdateActivity extends AppCompatActivity
                 .build();
 
         APIInterface service1 = retrofit1.create(APIInterface.class);
-        Call<List<FeedResource>> jsonCall = service1.getComp("1");
+        Call<List<FeedResource>> jsonCall = service1.getList();
 
         jsonCall.enqueue(new Callback<List<FeedResource>>() {
             @Override
-            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response)
-            {
-                List<FeedResource> feedResources=response.body();
+            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response) {
+                List<FeedResource> feedResources = response.body();
+
+                Log.d("update list", String.valueOf(response.body().size()));
 
                 String[] titles = new String[feedResources.size()];
                 String[] titleURL = new String[feedResources.size()];
@@ -164,44 +167,33 @@ public class UpdateActivity extends AppCompatActivity
 
                 for (int i = 0; i < feedResources.size(); i++)
                 {
-                    if(feedResources.get(i).getFeedType()==1) {
+                    if (feedResources.get(i).getFeedType() == 1)
+                    {
                         titles[i] = feedResources.get(i).getTitle();
                         titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
                         iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
                         type[i] = String.valueOf(feedResources.get(i).getFeedType());
                         Update fd = new Update(titles[i], titleURL[i], iconURL[i], type[i], ts);
-                        updateList.add(fd);
+                       // updateList.add(fd);
+
+                        DatabaseManager.getInstance(getApplicationContext()).insertupdate(fd)
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+                                });
+
                     }
 
                 }
-
-                // 1. get a reference to recyclerView
-                RecyclerView recyclerView = (RecyclerView) findViewById(R.id.UpdateRecyclerView);
-
-                // 2. set layoutManger
-                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-                // 3. create an adapter
-                UpdateListPresenter updateListPresenter = new UpdateListPresenter(updateList);
-                UpdateRecyclerAdapter mAdapter = new UpdateRecyclerAdapter( updateListPresenter,new com.example.pay1.community.update.RecyclerViewClickListener(){
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        Log.d("testing", "clicked position:" + position);
-                        Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse(updateList.get(position).getTitleUrl()));
-                        startActivity(intent);
-                    }
-                });
-
-
-
-                // 4. set adapter
-                recyclerView.setAdapter(mAdapter);
-
-                // 5. set item animator to DefaultAnimator
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-                DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), VERTICAL); //vertical line add
-                recyclerView.addItemDecoration(mDividerItemDecoration);
 
             }
 
@@ -212,8 +204,72 @@ public class UpdateActivity extends AppCompatActivity
         });
 
 
-    }
 
+        // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
+
+
+        DatabaseManager.getInstance(getApplicationContext()).getAllUpdateEntries()
+                .subscribe(new Observer<UpdateEntity>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(UpdateEntity entry) {
+
+                        Update sd = new Update(entry.getTitle(), entry.getTitleUrl(), entry.getIconUrl(), entry.getType(), ts);
+                        updateList.add(sd);
+                        Log.d("testing",entry.getTitle());
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                        Log.d("updateList", String.valueOf(updateList.isEmpty()));
+
+                        // 1. get a reference to recyclerView
+                        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.UpdateRecyclerView);
+
+                        // 2. set layoutManger
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                        // 3. create an adapter
+                        UpdateListPresenter updateListPresenter = new UpdateListPresenter(updateList);
+                        UpdateRecyclerAdapter mAdapter = new UpdateRecyclerAdapter(updateListPresenter, new com.example.pay1.community.update.RecyclerViewClickListener() {
+                            @Override
+                            public void onItemClick(View v, int position) {
+                                Log.d("testing", "clicked position:" + position);
+
+                                if (updateList.get(position).getTitle().equals("Slider")) {
+
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-aeps.com"));
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse(updateList.get(position).getTitleUrl()));
+                                    startActivity(intent1);
+                                }
+                            }
+                        });
+
+
+                        // 4. set adapter
+                        recyclerView.setAdapter(mAdapter);
+
+                        // 5. set item animator to DefaultAnimator
+                        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+                        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), VERTICAL); //vertical line add
+                        recyclerView.addItemDecoration(mDividerItemDecoration);
+
+                    }
+
+                });
+    }
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:

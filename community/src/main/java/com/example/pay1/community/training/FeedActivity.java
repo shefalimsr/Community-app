@@ -22,12 +22,8 @@ import com.example.pay1.community.api.APIInterface;
 import com.example.pay1.community.api.response.FeedResource;
 import com.example.pay1.community.database.DatabaseManager;
 import com.example.pay1.community.database.entity.FeedEntity;
-import com.example.pay1.community.home.Home;
-import com.example.pay1.community.home.HomeListPresenter;
-import com.example.pay1.community.home.HomeRecyclerAdapter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import io.reactivex.CompletableObserver;
@@ -48,6 +44,7 @@ public class FeedActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     public RecyclerView recyclerView;
     String ts;
+
 
 
     @Override
@@ -96,9 +93,11 @@ public class FeedActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
+                new NavigationView.OnNavigationItemSelectedListener()
+                {
                     @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    public boolean onNavigationItemSelected(MenuItem menuItem)
+                    {
                         // set item as selected to persist highlight
                         menuItem.setChecked(true);
 
@@ -124,8 +123,6 @@ public class FeedActivity extends AppCompatActivity
                         } else {
                             return true;
                         }
-                        // Add code here to UpdateEntity the UI based on the item selected
-                        // For example, swap UI fragments here
 
                         return true;
                     }
@@ -133,8 +130,7 @@ public class FeedActivity extends AppCompatActivity
 
 
 
-
-
+        //-------------------------------------------- getting from API , inserting in database ---------------------------------------
 
         Retrofit retrofit1 = new Retrofit.Builder()
                 .baseUrl("http://community.pay1.in")
@@ -146,39 +142,42 @@ public class FeedActivity extends AppCompatActivity
 
         jsonCall.enqueue(new Callback<List<FeedResource>>() {
             @Override
-            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response) {
+            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response)
+            {
                 List<FeedResource> feedResources = response.body();
+                if (feedList.size() != feedResources.size())
+                {
+                    String[] titles = new String[feedResources.size()];
+                    String[] titleURL = new String[feedResources.size()];
+                    String[] iconURL = new String[feedResources.size()];
+                    String[] type = new String[feedResources.size()];
 
-                String[] titles = new String[feedResources.size()];
-                String[] titleURL = new String[feedResources.size()];
-                String[] iconURL = new String[feedResources.size()];
-                String[] type = new String[feedResources.size()];
+                    for (int i = 0; i < feedResources.size(); i++) {
 
-                for (int i = 0; i < feedResources.size(); i++) {
+                        titles[i] = feedResources.get(i).getTitle();
+                        titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
+                        iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
+                        type[i] = String.valueOf(feedResources.get(i).getFeedType());
+                        Feed fd = new Feed(titles[i], titleURL[i], iconURL[i], type[i], ts);
+    //                    feedList.add(fd);
 
-                    titles[i] = feedResources.get(i).getTitle();
-                    titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
-                    iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
-                    type[i] = String.valueOf(feedResources.get(i).getFeedType());
-                    Feed fd = new Feed(titles[i], titleURL[i], iconURL[i], type[i], ts);
-//                    feedList.add(fd);
+                        DatabaseManager.getInstance(getApplicationContext()).insertfeed(fd)
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
 
-                    DatabaseManager.getInstance(getApplicationContext()).insertfeed(fd)
-                            .subscribe(new CompletableObserver() {
-                                @Override
-                                public void onSubscribe(Disposable d) {
-                                }
+                                    @Override
+                                    public void onComplete() {
+                                    }
 
-                                @Override
-                                public void onComplete() {
-                                }
-
-                                @Override
-                                public void onError(Throwable e) {
-                                }
-                            });
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+                                });
 
 
+                    }
                 }
             }
 
@@ -189,8 +188,30 @@ public class FeedActivity extends AppCompatActivity
         });
 
 
+//        DatabaseManager.getInstance(getApplicationContext()).deleteAllEntries().subscribe(new CompletableObserver() {
+//        @Override
+//        public void onSubscribe(Disposable d) {
+//
+//        }
+//
+//        @Override
+//        public void onComplete() {
+//            Log.d("feeds deleted","deleted");
+//
+//        }
+//
+//        @Override
+//        public void onError(Throwable e) {
+//
+//        }
+//    });
 
-        DatabaseManager.getInstance(getApplicationContext()).getAllEntries()
+
+
+        // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
+
+
+        DatabaseManager.getInstance(getApplicationContext()).getAllFeedEntries()
                 .subscribe(new Observer<FeedEntity>() {
                     @Override public void onSubscribe(Disposable d) { }
                     @Override
@@ -198,7 +219,7 @@ public class FeedActivity extends AppCompatActivity
 
                         Feed sd=new Feed(entry.getTitle(),entry.getTitleUrl(),entry.getIconUrl(),entry.getType(),ts);
                         feedList.add(sd);
-                        Log.d("testing",entry.getTitle());
+                        //Log.d("testing",entry.getTitle());
 
                     }
                     @Override public void onError(Throwable e) { }
@@ -209,8 +230,6 @@ public class FeedActivity extends AppCompatActivity
                         // 1. get a reference to recyclerView
                         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
-
-                        Log.d("feedlist", String.valueOf(feedList.isEmpty()));
                         // 2. set layoutManger
                         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
