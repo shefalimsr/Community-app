@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="15dp"
     android:orientation="vertical"
-    tools:context="com.example.pay1.community.home.HomeViewHolder"
+    tools:context="com.example.pay1.community.HOME.HomeViewHolder"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintTop_toTopOf="parent">

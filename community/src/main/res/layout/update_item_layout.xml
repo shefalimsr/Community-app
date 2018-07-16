@@ -7,7 +7,7 @@
     android:orientation="horizontal"
     android:weightSum="10"
     android:padding="5dp"
-    tools:context="com.example.pay1.community.update.UpdateActivity">
+    tools:context="com.example.pay1.community.UPDATE.UpdateActivity">
 
 
 

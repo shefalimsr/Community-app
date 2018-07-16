@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.pay1.community.home.HomeActivity;
+import com.example.pay1.community.HOME.HomeActivity;
 
 public class MainActivity extends AppCompatActivity {
 

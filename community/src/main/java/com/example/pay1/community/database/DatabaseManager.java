@@ -3,12 +3,12 @@ package com.example.pay1.community.database;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.pay1.community.database.entity.FeedEntity;
+import com.example.pay1.community.TRAINING.Training;
+import com.example.pay1.community.database.entity.TrainingEntity;
 import com.example.pay1.community.database.entity.HomEntity;
 import com.example.pay1.community.database.entity.UpdateEntity;
-import com.example.pay1.community.home.Home;
-import com.example.pay1.community.training.Feed;
-import com.example.pay1.community.update.Update;
+import com.example.pay1.community.HOME.Home;
+import com.example.pay1.community.UPDATE.Update;
 
 import java.util.List;
 
@@ -37,12 +37,12 @@ public class DatabaseManager {
 
  // ------------------------------------------------------ Get all feed entries -----------------------------------------------------------
 
-    public Observable<FeedEntity> getAllFeedEntries() {
-        return Observable.create(new ObservableOnSubscribe<FeedEntity>() {
+    public Observable<TrainingEntity> getAllFeedEntries() {
+        return Observable.create(new ObservableOnSubscribe<TrainingEntity>() {
             @Override
-            public void subscribe(ObservableEmitter<FeedEntity> emitter) throws Exception {
-                List<FeedEntity> feedEntity = ApplicationDatabase.getInstance(context).feedDao().getAll(2);
-                for(FeedEntity en : feedEntity) {
+            public void subscribe(ObservableEmitter<TrainingEntity> emitter) throws Exception {
+                List<TrainingEntity> trainingEntity = ApplicationDatabase.getInstance(context).feedDao().getAll(2);
+                for(TrainingEntity en : trainingEntity) {
                     if(!emitter.isDisposed()) emitter.onNext(en);
                 }
                 if(!emitter.isDisposed()) {
@@ -104,21 +104,21 @@ public class DatabaseManager {
 
     // ------------------------------------------------------ insert single feed entries -----------------------------------------------------------
 
-    public Completable insertfeed(final Feed feedi) {
+    public Completable insertfeed(final Training feedi) {
         return  Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter emitter) throws Exception {
 
 
-                FeedEntity feedEntity = new FeedEntity();
-                feedEntity.setTitle(feedi.getTitle());
-                feedEntity.setIconUrl(feedi.getIconUrl());
-                feedEntity.setTimestamp(feedi.getTimestamp());
-                feedEntity.setTitleUrl(feedi.getTitleUrl());
-                feedEntity.setType(feedi.getType());
+                TrainingEntity trainingEntity = new TrainingEntity();
+                trainingEntity.setTitle(feedi.getTitle());
+                trainingEntity.setIconUrl(feedi.getIconUrl());
+                trainingEntity.setTimestamp(feedi.getTimestamp());
+                trainingEntity.setTitleUrl(feedi.getTitleUrl());
+                trainingEntity.setType(feedi.getType());
 
 
-                ApplicationDatabase.getInstance(context).feedDao().insertSingle(feedEntity);
+                ApplicationDatabase.getInstance(context).feedDao().insertSingle(trainingEntity);
                 if(!emitter.isDisposed()) {
                     emitter.onComplete();
                 }

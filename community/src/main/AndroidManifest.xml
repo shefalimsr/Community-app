@@ -15,7 +15,7 @@
 
         <activity
             android:label="Training Material"
-            android:name=".training.FeedActivity" >
+            android:name=".TRAINING.TrainingActivity" >
             <intent-filter android:label="Training"
                 android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -30,7 +30,7 @@
 
         <activity
             android:label="Aeps"
-            android:name=".aeps.AepsActivity" >
+            android:name=".AEPS.AepsActivity" >
             <intent-filter android:label="AEPS"
                 android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -45,7 +45,7 @@
 
         <activity
             android:label="Blog"
-            android:name=".blog.BlogActivity" >
+            android:name=".BLOG.BlogActivity" >
             <intent-filter android:label="Blog"
                 android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -61,7 +61,7 @@
 
         <activity
             android:label="Company Update"
-            android:name=".update.UpdateActivity" >
+            android:name=".UPDATE.UpdateActivity" >
             <intent-filter android:label="Update"
                 android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
@@ -75,7 +75,7 @@
         </activity>
 
         <activity
-            android:name=".home.HomeActivity" >
+            android:name=".HOME.HomeActivity" >
             <intent-filter android:label="Home"
                 android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
