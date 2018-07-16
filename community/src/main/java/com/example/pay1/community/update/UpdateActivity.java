@@ -143,71 +143,26 @@ public class UpdateActivity extends AppCompatActivity
         ts = tsLong.toString();
 
 
-        //-------------------------------------------- getting from API , inserting in database ---------------------------------------
+        APItoDatabase();
+        DatabaseToRecyclerView();
 
-        Retrofit retrofit1 = new Retrofit.Builder()
-                .baseUrl("http://community.pay1.in")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        APIInterface service1 = retrofit1.create(APIInterface.class);
-        Call<List<FeedResource>> jsonCall = service1.getList();
-
-        jsonCall.enqueue(new Callback<List<FeedResource>>() {
-            @Override
-            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response) {
-                List<FeedResource> feedResources = response.body();
-
-                Log.d("update list", String.valueOf(response.body().size()));
-
-                String[] titles = new String[feedResources.size()];
-                String[] titleURL = new String[feedResources.size()];
-                String[] iconURL = new String[feedResources.size()];
-                String[] type = new String[feedResources.size()];
-
-                for (int i = 0; i < feedResources.size(); i++)
-                {
-                    if (feedResources.get(i).getFeedType() == 1)
-                    {
-                        titles[i] = feedResources.get(i).getTitle();
-                        titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
-                        iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
-                        type[i] = String.valueOf(feedResources.get(i).getFeedType());
-                        Update fd = new Update(titles[i], titleURL[i], iconURL[i], type[i], ts);
-                       // updateList.add(fd);
-
-                        DatabaseManager.getInstance(getApplicationContext()).insertupdate(fd)
-                                .subscribe(new CompletableObserver() {
-                                    @Override
-                                    public void onSubscribe(Disposable d) {
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                    }
-                                });
-
-                    }
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<List<FeedResource>> call, Throwable t) {
-                Log.e("response error ", t.toString());
-            }
-        });
+    }
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 
+    // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
 
-        // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
-
-
+    void DatabaseToRecyclerView()
+    {
         DatabaseManager.getInstance(getApplicationContext()).getAllUpdateEntries()
                 .subscribe(new Observer<UpdateEntity>() {
                     @Override
@@ -225,12 +180,14 @@ public class UpdateActivity extends AppCompatActivity
 
                     @Override
                     public void onError(Throwable e) {
+                        Log.d("error company update", e.toString() );
                     }
 
                     @Override
                     public void onComplete() {
 
                         Log.d("updateList", String.valueOf(updateList.isEmpty()));
+
 
                         // 1. get a reference to recyclerView
                         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.UpdateRecyclerView);
@@ -250,7 +207,12 @@ public class UpdateActivity extends AppCompatActivity
                                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-aeps.com"));
                                     startActivity(intent);
                                 } else {
-                                    Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse(updateList.get(position).getTitleUrl()));
+                                    String url = updateList.get(position).getTitleUrl();
+                                    String HTTP = "http://";
+                                    if (!url.startsWith(HTTP)) {
+                                        url = HTTP + url;
+                                    }
+                                    Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                                     startActivity(intent1);
                                 }
                             }
@@ -270,13 +232,92 @@ public class UpdateActivity extends AppCompatActivity
 
                 });
     }
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+
+
+
+    //-------------------------delete old data from database--------------------------------------
+
+    void deleteAllUpdates()
+    {
+
+        DatabaseManager.getInstance(getApplicationContext()).deleteAllUpdateEntries().subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d("deleted update","deleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("error delete",e.toString());
+            }
+        });
+    }
+
+
+    //-------------------------------------------- getting from API , inserting in database ---------------------------------------
+
+    void APItoDatabase()
+    {
+        Retrofit retrofit1 = new Retrofit.Builder()
+                .baseUrl("http://community.pay1.in")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        APIInterface service1 = retrofit1.create(APIInterface.class);
+        Call<List<FeedResource>> jsonCall = service1.getList();
+
+        jsonCall.enqueue(new Callback<List<FeedResource>>() {
+            @Override
+            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response) {
+                List<FeedResource> feedResources = response.body();
+
+                Log.d("update list", String.valueOf(response.body().size()));
+                deleteAllUpdates();
+                String[] titles = new String[feedResources.size()];
+                String[] titleURL = new String[feedResources.size()];
+                String[] iconURL = new String[feedResources.size()];
+                int[] type = new int[feedResources.size()];
+
+                for (int i = 0; i < feedResources.size(); i++)
+                {
+
+                    titles[i] = feedResources.get(i).getTitle();
+                    titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
+                    iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
+                    type[i] = feedResources.get(i).getFeedType();
+                    Update fd = new Update(titles[i], titleURL[i], iconURL[i], type[i], ts);
+                    // updateList.add(fd);
+
+                    DatabaseManager.getInstance(getApplicationContext()).insertupdate(fd)
+                            .subscribe(new CompletableObserver() {
+                                @Override
+                                public void onSubscribe(Disposable d) {
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                }
+                            });
+
+                }
+
+            }
+
+
+
+            @Override
+            public void onFailure(Call<List<FeedResource>> call, Throwable t) {
+                Log.e("response error ", t.toString());
+            }
+        });
     }
 
 }

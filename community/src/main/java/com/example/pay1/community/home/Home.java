@@ -5,11 +5,11 @@ public class Home {
     private String title;
     private String titleUrl;
     private String iconUrl;
-    private String type;
+    private int type;
     private String timestamp;
 
 
-    public Home(String tit, String titUrl, String icUrl, String typ, String tmstmp)
+    public Home(String tit, String titUrl, String icUrl, int typ, String tmstmp)
     {
         title=tit;
         titleUrl=titUrl;
@@ -42,11 +42,11 @@ public class Home {
         this.iconUrl = iconUrl;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 

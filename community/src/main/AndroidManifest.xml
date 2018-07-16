@@ -16,7 +16,8 @@
         <activity
             android:label="Training Material"
             android:name=".training.FeedActivity" >
-            <intent-filter android:label="Training">
+            <intent-filter android:label="Training"
+                android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -30,7 +31,8 @@
         <activity
             android:label="Aeps"
             android:name=".aeps.AepsActivity" >
-            <intent-filter android:label="AEPS">
+            <intent-filter android:label="AEPS"
+                android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -44,7 +46,8 @@
         <activity
             android:label="Blog"
             android:name=".blog.BlogActivity" >
-            <intent-filter android:label="Blog">
+            <intent-filter android:label="Blog"
+                android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -59,7 +62,8 @@
         <activity
             android:label="Company Update"
             android:name=".update.UpdateActivity" >
-            <intent-filter android:label="Update">
+            <intent-filter android:label="Update"
+                android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -72,7 +76,8 @@
 
         <activity
             android:name=".home.HomeActivity" >
-            <intent-filter android:label="Home">
+            <intent-filter android:label="Home"
+                android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />

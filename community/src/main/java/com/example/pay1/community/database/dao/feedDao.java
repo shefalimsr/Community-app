@@ -11,11 +11,12 @@ import java.util.List;
 @Dao
 public interface feedDao {
 
-    @Query("SELECT * FROM feedData")
-    List<FeedEntity> getAll();
+    @Query("SELECT * FROM feedData WHERE type = :id")
+    List<FeedEntity> getAll(int id);
 
     @Insert
     void insertSingle(FeedEntity feed);
+
 
     @Query("DELETE FROM feedData")
     void deleteAll();

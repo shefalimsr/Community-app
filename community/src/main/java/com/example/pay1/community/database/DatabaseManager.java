@@ -1,6 +1,7 @@
 package com.example.pay1.community.database;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.pay1.community.database.entity.FeedEntity;
 import com.example.pay1.community.database.entity.HomEntity;
@@ -40,7 +41,7 @@ public class DatabaseManager {
         return Observable.create(new ObservableOnSubscribe<FeedEntity>() {
             @Override
             public void subscribe(ObservableEmitter<FeedEntity> emitter) throws Exception {
-                List<FeedEntity> feedEntity = ApplicationDatabase.getInstance(context).feedDao().getAll();
+                List<FeedEntity> feedEntity = ApplicationDatabase.getInstance(context).feedDao().getAll(2);
                 for(FeedEntity en : feedEntity) {
                     if(!emitter.isDisposed()) emitter.onNext(en);
                 }
@@ -65,6 +66,7 @@ public class DatabaseManager {
                 List<HomEntity> homEntities = ApplicationDatabase.getInstance(context).homeDao().getAll();
                 for(HomEntity en : homEntities)
                 {
+                    Log.d("__",en.getType()+"");
                     if(!emitter.isDisposed()) emitter.onNext(en);
                 }
                 if(!emitter.isDisposed())
@@ -86,27 +88,13 @@ public class DatabaseManager {
             @Override
             public void subscribe(ObservableEmitter<UpdateEntity> emitter) throws Exception
             {
-                List<UpdateEntity> updateEntities = ApplicationDatabase.getInstance(context).updateDao().getAll();
+                List<UpdateEntity> updateEntities = ApplicationDatabase.getInstance(context).updateDao().getAll(1);
                 for(UpdateEntity en : updateEntities)
                 {
                     if(!emitter.isDisposed()) emitter.onNext(en);
                 }
                 if(!emitter.isDisposed())
                 {
-                    emitter.onComplete();
-                }
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
-    }
-
-
-    // ------------------------------------------------------ delete all feed entries -----------------------------------------------------------
-    public Completable deleteAllEntries() {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) throws Exception {
-                ApplicationDatabase.getInstance(context).feedDao().deleteAll();
-                if(!emitter.isDisposed()) {
                     emitter.onComplete();
                 }
             }
@@ -188,5 +176,47 @@ public class DatabaseManager {
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
+
+    // ------------------------------------------------------ delete all feed entries -----------------------------------------------------------
+    public Completable deleteAllFeedEntries() {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                ApplicationDatabase.getInstance(context).feedDao().deleteAll();
+                if(!emitter.isDisposed()) {
+                    emitter.onComplete();
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+
+    // ------------------------------------------------------ delete all home entries -----------------------------------------------------------
+    public Completable deleteAllHomeEntries() {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                ApplicationDatabase.getInstance(context).homeDao().deleteAll();
+                if(!emitter.isDisposed()) {
+                    emitter.onComplete();
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+
+    // ------------------------------------------------------ delete all update entries -----------------------------------------------------------
+    public Completable deleteAllUpdateEntries() {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+                ApplicationDatabase.getInstance(context).updateDao().deleteAll();
+                if(!emitter.isDisposed()) {
+                    emitter.onComplete();
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
 
 }

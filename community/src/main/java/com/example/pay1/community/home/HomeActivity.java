@@ -146,77 +146,54 @@ public class HomeActivity extends AppCompatActivity
         Calendar cal = Calendar.getInstance();
         ts = dateFormat.format(cal.getTime());
 
+      APItoDatabase();
+      DatabaseToRecyclerView();
 
+    }
 
-
-        //-------------------------------------------- getting from API , inserting in database ---------------------------------------
-
-        apiInterface = APIClient.getClient().create(APIInterface.class);
-        Retrofit retrofit1 = new Retrofit.Builder()
-                .baseUrl("http://community.pay1.in")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        APIInterface service1 = retrofit1.create(APIInterface.class);
-        Call<List<FeedResource>> jsonCall = service1.getList();
-
-        jsonCall.enqueue(new Callback<List<FeedResource>>()
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
         {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+
+//            case R.id.trainMat :
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+    //------------------------------------------- delete old data from database ----------------------------------------------------
+
+    void deleteAllHome()
+    {
+
+
+        DatabaseManager.getInstance(getApplicationContext()).deleteAllHomeEntries().subscribe(new CompletableObserver() {
             @Override
-            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response)
-            {
-                List<FeedResource> feedResources = response.body();
-
-                Log.d("response list", String.valueOf(response.body()));
-                if(homeList.size()!= feedResources.size())
-                {
-                    String[] titles = new String[feedResources.size()];
-                    String[] titleURL = new String[feedResources.size()];
-                    String[] iconURL = new String[feedResources.size()];
-                    String[] type = new String[feedResources.size()];
-
-                    for (int i = 0; i < feedResources.size(); i++) {
-
-                        titles[i] = feedResources.get(i).getTitle();
-                        titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
-                        iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
-                        type[i] = String.valueOf(feedResources.get(i).getFeedType());
-                        Home fd = new Home(titles[i], titleURL[i], iconURL[i], type[i], ts);
-                        homeList.add(fd);
-
-
-                        DatabaseManager.getInstance(getApplicationContext()).inserthome(fd)
-                                .subscribe(new CompletableObserver() {
-                                    @Override
-                                    public void onSubscribe(Disposable d) {
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                    }
-                                });
-                    }
-
-                }
-
+            public void onSubscribe(Disposable d) {
             }
 
             @Override
-            public void onFailure(Call<List<FeedResource>> call, Throwable t)
-            {
-                Log.e("response error ", t.toString());
+            public void onComplete() {
+                Log.d("deleted feed","deleted");
             }
 
+            @Override
+            public void onError(Throwable e) {
+            }
         });
+    }
 
 
 
+    // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
 
-        // ---------------------------------- getting from database, displaying in recyclerview -------------------------------------------
+    void DatabaseToRecyclerView()
+    {
 
         DatabaseManager.getInstance(getApplicationContext()).getAllHomeEntries()
                 .subscribe(new Observer<HomEntity>() {
@@ -247,7 +224,12 @@ public class HomeActivity extends AppCompatActivity
                             public void onItemClick(View v, int position)
                             {
                                 Log.d("testing", "clicked position:" + position);
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(homeList.get(position).getTitleUrl()));
+                                String url = homeList.get(position).getTitleUrl();
+                                String HTTP = "http://";
+                                if (!url.startsWith(HTTP)) {
+                                    url = HTTP + url;
+                                }
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                                 startActivity(intent);
                             }
                         });
@@ -259,22 +241,80 @@ public class HomeActivity extends AppCompatActivity
                         recyclerView.setItemAnimator(new DefaultItemAnimator());
                     }
                 });
-
-
-
     }
 
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
-            case android.R.id.home:
-                mDrawerLayout.openDrawer(GravityCompat.START);
-                return true;
 
-//            case R.id.trainMat :
-        }
-        return super.onOptionsItemSelected(item);
+
+
+    //-------------------------------------------- getting from API , inserting in database ---------------------------------------
+
+    void APItoDatabase()
+    {
+
+        apiInterface = APIClient.getClient().create(APIInterface.class);
+        Retrofit retrofit1 = new Retrofit.Builder()
+                .baseUrl("http://community.pay1.in")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        APIInterface service1 = retrofit1.create(APIInterface.class);
+        Call<List<FeedResource>> jsonCall = service1.getList();
+
+        jsonCall.enqueue(new Callback<List<FeedResource>>()
+        {
+            @Override
+            public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response)
+            {
+                List<FeedResource> feedResources = response.body();
+
+                Log.d("response list", String.valueOf(response.body()));
+
+                deleteAllHome();
+
+                    String[] titles = new String[feedResources.size()];
+                    String[] titleURL = new String[feedResources.size()];
+                    String[] iconURL = new String[feedResources.size()];
+                    int[] type = new int[feedResources.size()];
+
+                    for (int i = 0; i < feedResources.size(); i++)
+                    {
+
+                        titles[i] = feedResources.get(i).getTitle();
+                        titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
+                        iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
+                        type[i] = feedResources.get(i).getFeedType();
+                        Home fd = new Home(titles[i], titleURL[i], iconURL[i], type[i], ts);
+                        homeList.add(fd);
+                        Log.d(" feed type ",String.valueOf(type[i]));
+
+
+                        DatabaseManager.getInstance(getApplicationContext()).inserthome(fd)
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+                                });
+                    }
+
+                }
+
+
+
+            @Override
+            public void onFailure(Call<List<FeedResource>> call, Throwable t)
+            {
+                Log.e("response error ", t.toString());
+            }
+
+        });
     }
 
 }

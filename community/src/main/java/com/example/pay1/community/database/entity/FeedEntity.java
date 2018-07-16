@@ -21,12 +21,12 @@ public class FeedEntity {
     private String iconUrl;
 
     @ColumnInfo(name = "type")
-    private String type;
+    private int type;
 
     @ColumnInfo(name = "timestamp")
     private String timestamp;
 
-    public FeedEntity(String tit, String titUrl, String icUrl, String typ, String tmstmp)
+    public FeedEntity(String tit, String titUrl, String icUrl, int typ, String tmstmp)
     {
         title=tit;
         titleUrl=titUrl;
@@ -62,11 +62,11 @@ public class FeedEntity {
         this.iconUrl = iconUrl;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 

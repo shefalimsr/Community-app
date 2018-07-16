@@ -19,7 +19,7 @@ public class UpdateEntity {
     private String iconUrl;
 
     @ColumnInfo(name = "type")
-    private String type;
+    private int type;
 
     @ColumnInfo(name = "timestamp")
     private String timestamp;
@@ -48,11 +48,11 @@ public class UpdateEntity {
         this.iconUrl = iconUrl;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
 

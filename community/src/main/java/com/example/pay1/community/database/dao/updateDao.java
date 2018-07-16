@@ -11,8 +11,8 @@ import java.util.List;
 @Dao
 public interface updateDao {
 
-    @Query("SELECT * FROM updateData")
-    List<UpdateEntity> getAll();
+    @Query("SELECT * FROM updateData WHERE type= :id")
+    List<UpdateEntity> getAll(int id);
 
     @Insert
     void insertSingle(UpdateEntity update);
