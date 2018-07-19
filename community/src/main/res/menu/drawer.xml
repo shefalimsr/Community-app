@@ -31,11 +31,6 @@
             android:title="Company Update"/>
 
         <item
-            android:id="@+id/chat"
-            android:icon="@drawable/ic_chat"
-            android:title="Chat With US"/>
-
-        <item
             android:id="@+id/blog"
             android:icon="@drawable/ic_blog"
             android:title="Blog"/>

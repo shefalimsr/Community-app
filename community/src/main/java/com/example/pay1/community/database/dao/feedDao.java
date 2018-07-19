@@ -11,13 +11,13 @@ import java.util.List;
 @Dao
 public interface feedDao {
 
-    @Query("SELECT * FROM TrainingEntity WHERE type = :id")
+    @Query("SELECT * FROM feedData WHERE type = :id")
     List<TrainingEntity> getAll(int id);
 
     @Insert
     void insertSingle(TrainingEntity feed);
 
 
-    @Query("DELETE FROM TrainingEntity")
+    @Query("DELETE FROM feedData")
     void deleteAll();
 }

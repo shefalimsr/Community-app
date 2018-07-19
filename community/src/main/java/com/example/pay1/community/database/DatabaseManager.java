@@ -3,7 +3,9 @@ package com.example.pay1.community.database;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.pay1.community.ResourceList;
 import com.example.pay1.community.TRAINING.Training;
+import com.example.pay1.community.database.entity.ResourceEntity;
 import com.example.pay1.community.database.entity.TrainingEntity;
 import com.example.pay1.community.database.entity.HomEntity;
 import com.example.pay1.community.database.entity.UpdateEntity;
@@ -101,6 +103,51 @@ public class DatabaseManager {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
+    // ------------------------------------------------------ Get all update entries -----------------------------------------------------------
+
+    public Observable<ResourceEntity> getAllResourceEntries()
+    {
+        return Observable.create(new ObservableOnSubscribe<ResourceEntity>()
+        {
+            @Override
+            public void subscribe(ObservableEmitter<ResourceEntity> emitter) throws Exception
+            {
+                List<ResourceEntity> updateEntities = ApplicationDatabase.getInstance(context).resourceDao().getAll();
+                for(ResourceEntity en : updateEntities)
+                {
+                    if(!emitter.isDisposed()) emitter.onNext(en);
+                }
+                if(!emitter.isDisposed())
+                {
+                    emitter.onComplete();
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+
+    // ------------------------------------------------------ insert single resource entries -----------------------------------------------------------
+
+    public Completable insertResouce(final ResourceList resourceList) {
+        return  Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+
+                ResourceEntity resourceEntity = new ResourceEntity();
+                resourceEntity.setRes_id(resourceList.getRes_id());
+                resourceEntity.setResource_representation_type(resourceList.getResource_representation_type());
+                resourceEntity.setId(resourceList.getId());
+                resourceEntity.setRes_type(resourceList.getRes_type());
+                resourceEntity.setRes_type(resourceList.getRes_type());
+
+                ApplicationDatabase.getInstance(context).resourceDao().insertSingle(resourceEntity);
+                if(!emitter.isDisposed()) {
+                    emitter.onComplete();
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
 
     // ------------------------------------------------------ insert single feed entries -----------------------------------------------------------
 
@@ -116,7 +163,10 @@ public class DatabaseManager {
                 trainingEntity.setTimestamp(feedi.getTimestamp());
                 trainingEntity.setTitleUrl(feedi.getTitleUrl());
                 trainingEntity.setType(feedi.getType());
-
+                trainingEntity.setResource_representation_type((feedi.resource_representation_type));
+                trainingEntity.setVisibility(feedi.getVisibility());
+                trainingEntity.setId(feedi.getId());
+                trainingEntity.setSize(feedi.getSizeRes());
 
                 ApplicationDatabase.getInstance(context).feedDao().insertSingle(trainingEntity);
                 if(!emitter.isDisposed()) {
@@ -141,7 +191,10 @@ public class DatabaseManager {
                 homEntity.setTimestamp(homi.getTimestamp());
                 homEntity.setTitleUrl(homi.getTitleUrl());
                 homEntity.setType(homi.getType());
-
+                homEntity.setResource_representation_type((homi.resource_representation_type));
+                homEntity.setVisibility(homi.getVisibility());
+                homEntity.setId(homi.getId());
+                homEntity.setSize(homi.getSizeRes());
 
                 ApplicationDatabase.getInstance(context).homeDao().insertSingle(homEntity);
                 if(!emitter.isDisposed()) {
@@ -167,7 +220,11 @@ public class DatabaseManager {
                 updateEntity.setTimestamp(update.getTimestamp());
                 updateEntity.setTitleUrl(update.getTitleUrl());
                 updateEntity.setType(update.getType());
-
+                updateEntity.setResource_representation_type((update.resource_representation_type));
+                updateEntity.setVisibility(update.getVisibility());
+                updateEntity.setId(update.getId());
+                updateEntity.setSize(update.getSizeRes());
+               // Log.d("manager", updateEntity.getResource_representation_type() + String.valueOf(update.resource_representation_type) );
 
                 ApplicationDatabase.getInstance(context).updateDao().insertSingle(updateEntity);
                 if(!emitter.isDisposed()) {

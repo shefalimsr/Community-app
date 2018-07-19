@@ -4,13 +4,22 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+
+
+
 @Entity(tableName = "updateData")
 public class UpdateEntity {
     @PrimaryKey(autoGenerate = true)
     private int uid;
 
+    @ColumnInfo(name = "id")
+    private int id;
+
     @ColumnInfo(name="title")
     private String title;
+
+    @ColumnInfo(name = "visibility")
+    private int visibility;
 
     @ColumnInfo(name="titleUrl")
     private String titleUrl;
@@ -23,6 +32,12 @@ public class UpdateEntity {
 
     @ColumnInfo(name = "timestamp")
     private String timestamp;
+
+    @ColumnInfo(name = "resource_representation_type")
+    private int resource_representation_type;
+
+    @ColumnInfo(name = "size")
+private int size;
 
     public String getTitle() {
         return title;
@@ -70,5 +85,38 @@ public class UpdateEntity {
 
     public void setUid(int uid) {
         this.uid = uid;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
+
+    public int getResource_representation_type() {
+        return resource_representation_type;
+    }
+
+    public void setResource_representation_type(int resource_representation_type) {
+        this.resource_representation_type = resource_representation_type;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }

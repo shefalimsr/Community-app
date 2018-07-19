@@ -11,8 +11,14 @@ public class TrainingEntity {
     @PrimaryKey(autoGenerate = true)
     private int fid;
 
+    @ColumnInfo(name = "id")
+    private int id;
+
     @ColumnInfo(name="title")
     private String title;
+
+    @ColumnInfo(name = "visibility")
+    private int visibility;
 
     @ColumnInfo(name="titleUrl")
     private String titleUrl;
@@ -26,17 +32,11 @@ public class TrainingEntity {
     @ColumnInfo(name = "timestamp")
     private String timestamp;
 
-    public TrainingEntity(String tit, String titUrl, String icUrl, int typ, String tmstmp)
-    {
-        title=tit;
-        titleUrl=titUrl;
-        iconUrl=icUrl;
-        type=typ;
-        timestamp=tmstmp;
-    }
+    @ColumnInfo(name = "resource_representation_type")
+    private int resource_representation_type;
 
-    public TrainingEntity()
-    {}
+    @ColumnInfo(name = "size")
+    private int size;
 
     public String getTitle() {
         return title;
@@ -76,6 +76,40 @@ public class TrainingEntity {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
+
+    public int getResource_representation_type() {
+        return resource_representation_type;
+    }
+
+    public void setResource_representation_type(int resource_representation_type) {
+        this.resource_representation_type = resource_representation_type;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     public int getFid() {

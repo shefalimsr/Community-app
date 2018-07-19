@@ -17,15 +17,22 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.pay1.community.R;
+import com.example.pay1.community.AEPS.AepsActivity;
 import com.example.pay1.community.API.APIClient;
 import com.example.pay1.community.API.APIInterface;
 import com.example.pay1.community.API.response.FeedResource;
 import com.example.pay1.community.API.response.FeedResponse;
+import com.example.pay1.community.BLOG.BlogActivity;
+import com.example.pay1.community.HOME.HomeActivity;
+import com.example.pay1.community.R;
+import com.example.pay1.community.ResourceList;
+import com.example.pay1.community.TRAINING.TrainingActivity;
 import com.example.pay1.community.database.DatabaseManager;
+import com.example.pay1.community.database.entity.ResourceEntity;
 import com.example.pay1.community.database.entity.UpdateEntity;
 import com.google.gson.JsonArray;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +59,10 @@ public class UpdateActivity extends AppCompatActivity
     List<FeedResponse> feedResponses = new ArrayList<>();
     public String ts;
     RecyclerView recyclerView;
+    Update fd;
+    Bundle bundle = new Bundle();
+    List<ResourceList> resourceList = new ArrayList<ResourceList>();
+
 
 
     @Override
@@ -109,24 +120,18 @@ public class UpdateActivity extends AppCompatActivity
                         mDrawerLayout.closeDrawers();
                         int i2 = menuItem.getItemId();
                         if (i2 == R.id.home) {
-                            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-home.com"));
+                            Intent i = new Intent(getApplicationContext(), HomeActivity.class);
                             startActivity(i);
 
                         } else if (i2 == R.id.trainMat) {
-                            Intent i1 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-training.com"));
+                            Intent i1 = new Intent(getApplicationContext(), TrainingActivity.class);
                             startActivity(i1);
 
                         } else if (i2 == R.id.blog) {
-                            Intent i3 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-blog.com"));
+                            Intent i3 = new Intent(getApplicationContext(), BlogActivity.class);
                             startActivity(i3);
 
-                        } else if (i2 == R.id.chat) {
-                            Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-aeps.com"));
-                            startActivity(implicit);
-
-
-                            return true;
-                        } else {
+                        }  else {
                             return true;
                         }
                         // Add code here to UpdateEntity the UI based on the item selected
@@ -163,6 +168,7 @@ public class UpdateActivity extends AppCompatActivity
 
     void DatabaseToRecyclerView()
     {
+
         DatabaseManager.getInstance(getApplicationContext()).getAllUpdateEntries()
                 .subscribe(new Observer<UpdateEntity>() {
                     @Override
@@ -170,11 +176,15 @@ public class UpdateActivity extends AppCompatActivity
                     }
 
                     @Override
-                    public void onNext(UpdateEntity entry) {
+                    public void onNext(final UpdateEntity entry) {
 
-                        Update sd = new Update(entry.getTitle(), entry.getTitleUrl(), entry.getIconUrl(), entry.getType(), ts);
+                        Update sd = new Update(entry.getId(),entry.getTitle(), entry.getTitleUrl(), entry.getIconUrl(), entry.getType(), ts,entry.getVisibility(),entry.getResource_representation_type());
                         updateList.add(sd);
-                        Log.d("testing",entry.getTitle());
+//                        String s = entry.getResource_representation_type() + "," + entry.getId() + "," + entry.getType();
+//                        Log.d("testing update", s);
+
+
+
 
                     }
 
@@ -186,48 +196,116 @@ public class UpdateActivity extends AppCompatActivity
                     @Override
                     public void onComplete() {
 
-                        Log.d("updateList", String.valueOf(updateList.isEmpty()));
+                      //  Log.d("updateList", String.valueOf(updateList.isEmpty()));
 
-
-                        // 1. get a reference to recyclerView
-                        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.UpdateRecyclerView);
-
-                        // 2. set layoutManger
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-                        // 3. create an adapter
-                        UpdateListPresenter updateListPresenter = new UpdateListPresenter(updateList);
-                        UpdateRecyclerAdapter mAdapter = new UpdateRecyclerAdapter(updateListPresenter, new com.example.pay1.community.UPDATE.RecyclerViewClickListener() {
+                        DatabaseManager.getInstance(getApplicationContext()).getAllResourceEntries().subscribe(new Observer<ResourceEntity>() {
                             @Override
-                            public void onItemClick(View v, int position) {
-                                Log.d("testing", "clicked position:" + position);
+                            public void onSubscribe(Disposable d) {
 
-                                if (updateList.get(position).getTitle().equals("Slider")) {
-                                   List<String> Slider = new ArrayList<String>();
+                            }
 
-                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-aeps.com"));
-                                    startActivity(intent);
-                                } else {
-                                    String url = updateList.get(position).getTitleUrl();
-                                    String HTTP = "http://";
-                                    if (!url.startsWith(HTTP)) {
-                                        url = HTTP + url;
+                            @Override
+                            public void onNext(ResourceEntity resourceEntity) {
+
+                                ResourceList rs = new ResourceList();
+                                rs.setId(resourceEntity.getId());
+                                rs.setRes_id(resourceEntity.getRes_id());
+                                rs.setRes_type(resourceEntity.getRes_type());
+                                rs.setRes_url(resourceEntity.getRes_url());
+                                rs.setResource_representation_type(resourceEntity.getResource_representation_type());
+
+                                resourceList.add(rs);
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.d("get res",e.toString());
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+//                                Log.d("get res","done");
+//                                Log.d("resourceList1", String.valueOf(resourceList.isEmpty()));
+
+
+
+
+
+                                // 1. get a reference to recyclerView
+                                RecyclerView recyclerView = (RecyclerView) findViewById(R.id.UpdateRecyclerView);
+
+                                // 2. set layoutManger
+                                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                                // 3. create an adapter
+                                UpdateListPresenter updateListPresenter = new UpdateListPresenter(updateList);
+                                UpdateRecyclerAdapter mAdapter = new UpdateRecyclerAdapter(updateListPresenter, new com.example.pay1.community.UPDATE.RecyclerViewClickListener() {
+                                    @Override
+                                    public void onItemClick(View v, int position) {
+                                        if(!resourceList.isEmpty())
+                                        {
+                                        Log.d("testing", "clicked position:" + position);
+                                        String tf = String.valueOf(updateList.get(position).getId()) + "," + String.valueOf(updateList.get(position).getResource_representation_type()) + "," + updateList.get(position).getTitle();
+                                        Log.d("test data", tf);
+                                        ArrayList<String> rees = new ArrayList<String>();
+                                        //   if (updateList.get(position).getTitleUrl().contains(".jpg") || updateList.get(position).getTitleUrl().contains(".jpeg")) {
+                                        if (updateList.get(position).getResource_representation_type() == 2) {
+                                            rees.add(updateList.get(position).getTitleUrl());
+                                            Intent intent = new Intent(getApplicationContext(), AepsActivity.class);
+
+                                            Log.d("#@", String.valueOf(rees.isEmpty()));
+
+                                            bundle.putSerializable("ARRAYLIST", (Serializable) rees);
+                                            intent.putExtra("BUNDLE",bundle);
+
+                                            startActivity(intent);
+
+                                        } else if (updateList.get(position).getResource_representation_type() == 3) {
+
+                                            for (int j = 0; j < resourceList.size(); j++)
+
+                                            {
+                                                if (resourceList.get(j).getId() == updateList.get(position).getId())
+                                                    rees.add(resourceList.get(j).getRes_url());
+                                            }
+
+                                            Intent intent = new Intent(getApplicationContext(), AepsActivity.class);
+                                            Log.d("#@1", String.valueOf(rees.isEmpty()));
+                                            bundle.putSerializable("ARRAYLIST",rees);
+                                            intent.putExtra("BUNDLE",bundle);
+
+                                            startActivity(intent);
+
+                                        } else
+                                            {
+                                            String url = updateList.get(position).getTitleUrl();
+                                            String HTTP = "http://";
+                                            if (!url.startsWith(HTTP)) {
+                                                url = HTTP + url;
+                                            }
+                                            Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                            startActivity(intent1);
+                                        }
+
                                     }
-                                    Intent intent1 = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                                    startActivity(intent1);
-                                }
+                                    }
+                                });
+
+
+                                // 4. set adapter
+                                recyclerView.setAdapter(mAdapter);
+
+                                // 5. set item animator to DefaultAnimator
+                                recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+                                DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), VERTICAL); //vertical line add
+                                recyclerView.addItemDecoration(mDividerItemDecoration);
                             }
                         });
 
 
-                        // 4. set adapter
-                        recyclerView.setAdapter(mAdapter);
-
-                        // 5. set item animator to DefaultAnimator
-                        recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-                        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), VERTICAL); //vertical line add
-                        recyclerView.addItemDecoration(mDividerItemDecoration);
 
                     }
 
@@ -276,21 +354,62 @@ public class UpdateActivity extends AppCompatActivity
             public void onResponse(Call<List<FeedResource>> call, Response<List<FeedResource>> response) {
                 List<FeedResource> feedResources = response.body();
 
-                Log.d("update list", String.valueOf(response.body().size()));
-                deleteAllUpdates();
+               deleteAllUpdates();
                 String[] titles = new String[feedResources.size()];
                 String[] titleURL = new String[feedResources.size()];
                 String[] iconURL = new String[feedResources.size()];
                 int[] type = new int[feedResources.size()];
+                int[] id = new int[feedResources.size()];
+                int[] visibility = new int[feedResources.size()];
+                int[] resRep = new int[feedResources.size()];
 
                 for (int i = 0; i < feedResources.size(); i++)
                 {
+                    Log.d("rep typre", String.valueOf(feedResources.get(i).getResourceRepresentationType()));
 
                     titles[i] = feedResources.get(i).getTitle();
                     titleURL[i] = feedResources.get(i).getRes().get(0).getResUrl();
                     iconURL[i] = feedResources.get(i).getSmallIcon().get(0).getResUrl();
                     type[i] = feedResources.get(i).getFeedType();
-                    Update fd = new Update(titles[i], titleURL[i], iconURL[i], type[i], ts);
+                    id[i] = feedResources.get(i).getId();
+                    visibility[i] = feedResources.get(i).getVisibility();
+                    resRep[i]=feedResources.get(i).getResourceRepresentationType();
+                    Log.d("@#list", String.valueOf(resRep[i]));
+
+
+                    fd = new Update(id[i],titles[i], titleURL[i], iconURL[i], type[i], ts,visibility[i],resRep[i]);
+
+                    for(int j=0;j<feedResources.get(i).sizeRes();j++)
+                    {
+
+                        ResourceList rs = new ResourceList();
+
+                        rs.setId(feedResources.get(i).getId());
+                        rs.setResource_representation_type(feedResources.get(i).getResourceRepresentationType());
+                        rs.setRes_id(feedResources.get(i).getRes().get(j).getResId());
+                        rs.setRes_type(   feedResources.get(i).getRes().get(j).getResType());
+                        rs.setRes_url(feedResources.get(i).getRes().get(j).getResUrl());
+
+                        DatabaseManager.getInstance(getApplicationContext()).insertResouce(rs)
+                                .subscribe(new CompletableObserver() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        Log.d("resource insert","success");
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                    }
+                                });
+
+
+
+                    }
+
                     // updateList.add(fd);
 
                     DatabaseManager.getInstance(getApplicationContext()).insertupdate(fd)
@@ -301,6 +420,7 @@ public class UpdateActivity extends AppCompatActivity
 
                                 @Override
                                 public void onComplete() {
+                                    //Log.d("oncomplete", String.valueOf(fd.getResource_representation_type()));
                                 }
 
                                 @Override
@@ -309,6 +429,9 @@ public class UpdateActivity extends AppCompatActivity
                             });
 
                 }
+
+
+
 
             }
 

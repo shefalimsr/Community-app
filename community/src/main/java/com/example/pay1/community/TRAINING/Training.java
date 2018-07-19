@@ -2,20 +2,30 @@ package com.example.pay1.community.TRAINING;
 
 public class Training {
 
-    private String title;
-    private String titleUrl;
-    private String iconUrl;
-    private int type;
-    private String timestamp;
 
-    public Training(String tit, String titUrl, String icUrl, int typ, String tmstmp)
+
+
+    public int id;
+    public String title;
+    public String titleUrl;
+    public String iconUrl;
+    public int type;
+    public String timestamp;
+    public int visibility;
+    public int resource_representation_type;
+    public int sizeRes;
+
+
+    public Training(int i,String tit, String titUrl, String icUrl, int typ, String tmstmp,int v,int r)
     {
+        visibility=v;
+        id=i;
         title=tit;
         titleUrl=titUrl;
         iconUrl=icUrl;
         type=typ;
         timestamp=tmstmp;
-
+        resource_representation_type=r;
     }
 
     public String getTitle() {
@@ -56,6 +66,39 @@ public class Training {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(int visibility) {
+        this.visibility = visibility;
+    }
+
+    public int getResource_representation_type() {
+        return resource_representation_type;
+    }
+
+    public void setResource_representation_type(int resource_representation_type) {
+        this.resource_representation_type = resource_representation_type;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getSizeRes()
+    {
+        return sizeRes;
+    }
+
+    public void setSizeRes(int sizeRes) {
+        this.sizeRes = sizeRes;
     }
 
 

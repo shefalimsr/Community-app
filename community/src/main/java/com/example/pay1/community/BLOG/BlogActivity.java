@@ -16,12 +16,18 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 
+import com.example.pay1.community.AEPS.AepsActivity;
+import com.example.pay1.community.HOME.HomeActivity;
 import com.example.pay1.community.R;
+import com.example.pay1.community.TRAINING.TrainingActivity;
+import com.example.pay1.community.UPDATE.UpdateActivity;
 
 public class BlogActivity extends AppCompatActivity {
 
     private WebView webView = null;
     private DrawerLayout mDrawerLayout;
+    Bundle bundle=new Bundle();
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,7 @@ public class BlogActivity extends AppCompatActivity {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
 
 
         mDrawerLayout = findViewById(R.id.drawer_view);
@@ -80,23 +87,17 @@ public class BlogActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
                         int i3 = menuItem.getItemId();
                         if (i3 == R.id.home) {
-                            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-home.com"));
+                            Intent i = new Intent(BlogActivity.this, HomeActivity.class);
                             startActivity(i);
 
                         } else if (i3 == R.id.trainMat) {
-                            Intent i2 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-training.com"));
+                            Intent i2 = new Intent(BlogActivity.this, TrainingActivity.class);
                             startActivity(i2);
 
                         } else if (i3 == R.id.compUpd) {
-                            Intent i1 = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-update.com"));
+                            Intent i1 = new Intent(BlogActivity.this, UpdateActivity.class);
                             startActivity(i1);
 
-                        } else if (i3 == R.id.chat) {
-                            Intent implicit = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.community-aeps.com"));
-                            startActivity(implicit);
-
-
-                            return true;
                         } else {
                             return true;
                         }
@@ -114,7 +115,11 @@ public class BlogActivity extends AppCompatActivity {
         WebViewClientImpl webViewClient = new WebViewClientImpl(this);
         webView.setWebViewClient(webViewClient);
 
-        webView.loadUrl("http://pay1.in/partners-blog/a-partnership-with-plethora-of-opportunities/");
+        intent = getIntent();
+        bundle = intent.getBundleExtra("BUNDLE");
+        String url = (String)bundle.getSerializable("url");
+
+        webView.loadUrl(url);
     }
 
 
